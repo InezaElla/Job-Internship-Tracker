@@ -5,6 +5,7 @@ import { useState } from 'react'; //we use state to store data that can change
 function App() {
   //This creates a "state" variable to store our applications
   const [applications, setApplications] = useState([]); //We need a place to store applications before adding any
+  const [editingId, setEditingId] = useState(null);
   
     // State to track what the user is typing
     const [company, setCompany] = useState('');
@@ -34,18 +35,24 @@ function App() {
       return;
     }
 
-    const newApp = {
-      id: Date.now(), //Use timestamp as a unique ID
-      company: company,
-      position: position,
-      status: status,
-      location: location,
-      dateApplied: dateApplied,
-      salaryRange: salaryRange,
-      notes: notes
+    if (editingId) {
+      // We're EDITING an existing application
+      setApplications(applications.map(app =>
+        app.id === editingId
+        ? { id: editingId, company, position, status, location, dateApplied, salaryRange, notes }
+        : app
+      ));
+      setEditingId(null);
+    } else {
+      // We're ADDING a new application
+      const newApp = {
+        id: Date.now(),
+        company, position, status, location, dateApplied, salaryRange, notes
+      };
+      setApplications([...applications, newApp]);
     };
 
-    setApplications([...applications, newApp]);
+    /*setApplications([...applications, newApp]);*/
 
     // Clear the inputs after adding
     setCompany('');
@@ -55,6 +62,24 @@ function App() {
     setDateApplied('');
     setSalaryRange('');
     setNotes('');
+  };
+
+  const deleteApplication = (id) => {
+    if (window.confirm('Really want to delete this application?')) {
+      setApplications(applications.filter(app => app.id !== id));
+    }
+  };
+
+  const editApplication = (app) => {
+    setCompany(app.company);
+    setPosition(app.position);
+    setStatus(app.status);
+    setLocation(app.location);
+    setDateApplied(app.dateApplied);
+    setSalaryRange(app.salaryRange);
+    setNotes(app.notes);
+    setEditingId(app.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Calculate statistics
@@ -189,7 +214,9 @@ function App() {
           marginBottom: '30px',
           border: '2px solid #dee2e6'
         }}>
-          <h3 style={{  marginTop: 0, color: '#495057' }}>➕ Add New Application</h3>
+          <h3 style={{  marginTop: 0, color: '#495057' }}>
+            {editingId ? '✏️ Edit Application' : 'Add New Application'}
+            </h3>
 
           <div style={{ display:  'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
             <input
@@ -313,7 +340,7 @@ function App() {
             onMouseOver={(e) => e.target.style.backgroundColor = '#5568d3'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#667eea'}
           >
-            ✨ Add Application
+            {editingId ? '✏️ Edit Application' : '✨ Add New Application'}
           </button>
         </div>
 
@@ -394,8 +421,49 @@ function App() {
                       <strong style={{ color: '#495057' }}>📝 Notes:</strong> {app.notes}
                     </div>
                   )}
+
+                  <div style={{
+                    marginTop: '15px',
+                    paddingTop: '15px',
+                    borderTop: '2px solid #f0f0f0',
+                    display: 'flex',
+                    gap: '10px'
+                  }}>
+                    <button 
+                    onClick={() => editApplication(app)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      backgroundColor: '#667eea',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '1em',
+                      fontWeight: 'bold'
+                    }}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      onClick={() => deleteApplication(app.id)}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        backgroundColor: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontSize: '1em',
+                        fontWeight: 'bold'
+                      }}
+                      >
+                        🗑️ Delete
+                      </button>
                 </div>
-              );
+              </div>
+            );
             })}
           </div>
         )}
