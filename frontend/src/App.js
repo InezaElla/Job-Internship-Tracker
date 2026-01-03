@@ -323,7 +323,7 @@ function App() {
               fontFamily: 'inherit'
             }}
           />
-          
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button 
             onClick={addApplication}
             style={{ 
@@ -340,8 +340,9 @@ function App() {
             onMouseOver={(e) => e.target.style.backgroundColor = '#5568d3'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#667eea'}
           >
-            {editingId ? '✏️ Edit Application' : '✨ Add New Application'}
+            {editingId ? '✏️ Edit Application' : '➕ Add New Application'}
           </button>
+        </div>
         </div>
 
         {/* Applications List */}
