@@ -13,6 +13,8 @@ function App() {
   const [dateApplied, setDateApplied] = useState('');
   const [salaryRange, setSalaryRange] = useState('');
   const [notes, setNotes] = useState(''); 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
 
   const getStatusColor = (status) => {
     const colors = {
@@ -81,6 +83,13 @@ function App() {
     offer: applications.filter(a => a.status === 'Offer').length,
     rejected: applications.filter(a => a.status === 'Rejected').length
   };
+
+  const filteredApplications = applications.filter(app => {
+    const matchesSearch = app.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         app.position.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'All' || app.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
 
   return(
     <div style={{
@@ -193,6 +202,54 @@ function App() {
             <div style={{ color: '#C62828', fontSize: 'clamp(0.75em, 2.5vw, 0.9em)' }}>Rejected</div>
           </div>
         </div>
+
+        {/* Search and Filter Bar */}
+        <div style={{
+          backgroundColor: 'white',
+          padding: '15px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px'
+        }}>
+          <input
+            type='text'
+            placeholder='🔍 Search by company or position...'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '12px',
+              border: '2px solid #dee2e6',
+              borderRadius: '8px',
+              fontSize: 'clamp(0.9em, 3vw, 1em)',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+            />
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{
+                padding: '12px',
+                border: '2px solid #dee2e6',
+                borderRadius: '8px',
+                fontSize: 'clamp(0.9em, 3vw, 1em)',
+                cursor: 'pointer',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+            >
+              <option value='All'>All Statuses</option>
+              <option value='Applied'>📝 Applied</option>
+              <option value='Waiting'>⏳ Waiting</option>
+              <option value='Interview'>💼 Interview</option>
+              <option value='Offer'>🎉 Offer</option>
+              <option value='Rejected'>❌ Rejected</option>
+            </select>             
+          </div>
 
         <div style={{
           backgroundColor: '#f8f9fa',
@@ -345,7 +402,7 @@ function App() {
           📋 My Applications ({applications.length})
         </h3>
         
-        {applications.length === 0 ? (
+        {filteredApplications.length === 0 ? (
           <div style={{ 
             textAlign: 'center', 
             padding: '30px 20px', 
@@ -359,7 +416,7 @@ function App() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            {applications.map((app) => {
+            {filteredApplications.map((app) => {
               const colors = getStatusColor(app.status);
               return (
                 <div 
